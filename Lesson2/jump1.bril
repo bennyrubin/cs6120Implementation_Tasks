@@ -1,0 +1,13 @@
+# has a total jumping distance of 3
+@main {
+  v: int = const 4;
+  jmp .somewhere;
+  v: int = const 2;
+.somewhere:
+  print v;
+  jmp .somewhereelse;
+  v: int = const 2;
+  x: int = const 4;
+.somewhereelse:
+  y: int = const 3;
+}

@@ -1,0 +1,2 @@
+command = "bril2json < {filename} | identify_core.py"
+output.out = "-"

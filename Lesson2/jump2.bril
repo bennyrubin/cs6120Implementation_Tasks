@@ -1,0 +1,14 @@
+# jump 4 + 7 = 11
+
+@main {
+  v: int = const 4;
+.somewherebefore:
+  jmp .somewhere;
+  v: int = const 2;
+  v: int = const 2;
+  v: int = const 2;
+  v: int = const 2;
+.somewhere:
+  print v;
+  jmp .somewherebefore;
+}
