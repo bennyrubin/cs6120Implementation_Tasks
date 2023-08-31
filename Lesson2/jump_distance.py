@@ -5,10 +5,7 @@
 import json
 import sys
 
-file = sys.argv[1]
-f = open(file)
-
-program = json.load(f)
+program = json.load(sys.stdin)
 
 
 def is_jmp(instr):
@@ -26,7 +23,12 @@ for func in program["functions"]:
     instructions = func["instrs"]
     for i, instr in enumerate(instructions):
         if is_jmp(instr):
-            jmp_label = instr['labels'][0]
+            # if no 'labels' then it's in arg
+            jmp_label = instr.get('labels')
+            if not jmp_label:
+                jmp_label = instr.get('args')[0]
+            else:
+                jmp_label = jmp_label[0]
             label_instr = find_label(instructions, jmp_label)
             label_idx = instructions.index(label_instr)
             instr_jumped += abs(i - label_idx) - 1

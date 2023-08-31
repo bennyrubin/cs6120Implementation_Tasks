@@ -1,2 +1,2 @@
-command = "bril2json < {filename} | identify_core.py"
+command = "bril2json < {filename} | python3 jump_distance.py"
 output.out = "-"
