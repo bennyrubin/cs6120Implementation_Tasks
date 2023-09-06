@@ -1,7 +1,6 @@
 # Calculates the total jumping distance of the program. This is how many instructions are jumped over. Assuming jmps don't cross function boudnaries.
 # Backwards jumps still count as instructions jumped over and labels count as jumps as well.
 
-# test it with my own custom programs with jumps
 import json
 import sys
 
