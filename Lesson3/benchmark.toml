@@ -17,6 +17,6 @@ pipeline = [
 [runs.lvn]
 pipeline = [
     "bril2json",
-    "python3 LVN.py",
+    "python3 lvn_solution.py",
     "brili -p {args}",
 ]

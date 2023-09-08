@@ -20,12 +20,13 @@ def eliminate_dead_code(blocks):
             args = instr.get('args')
             if args:
                 used_vars.update(args)
-    while True:
-        before_length = len(block)
-    # filter through instructions and remove ones whose destination is never used 
-        block[:] = list(filter(lambda instr: should_keep_instr(used_vars, instr), block))
-        if before_length == len(block):
-            break
+    for block in blocks:
+        while True:
+            before_length = len(block)
+        # filter through instructions and remove ones whose destination is never used 
+            block[:] = list(filter(lambda instr: should_keep_instr(used_vars, instr), block))
+            if before_length == len(block):
+                break
             
 
 def eliminate_dead_code_program(prog):
@@ -39,6 +40,7 @@ def print_program(prog):
     json.dump(prog, sys.stdout, indent=2, sort_keys=True) # pulled from briltxt.py
 
 if __name__ == "__main__":
+    #command: bril2json < {file}| python3 tdce.py | bril2txt
     program = json.load(sys.stdin)
     eliminate_dead_code_program(program)
     print_program(program)
