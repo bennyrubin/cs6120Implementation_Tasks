@@ -1,0 +1,13 @@
+@main() {
+  zero: int = const 0;
+  one: int = const 1;
+  comp: bool = eq zero one;
+  br comp .equal .nequal;
+.equal:
+  print zero;
+  equal: int = const 2;
+.nequal:
+  print one;
+  nequal: int = const 4;
+  one: int = const 5;
+}
