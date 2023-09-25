@@ -1,0 +1,58 @@
+@main(input: int) {
+.b1:
+  zero_num0: int = const 0;
+  ten_num0: int = const 10;
+  result_num0: int = const 0;
+  result_num1: int = id result_num0;
+  input_num0: int = id input;
+  jmp .begin;
+.begin:
+  digit_num1: int = call @peel_last_digit input_num0;
+  input_num1: int = div input_num0 ten_num0;
+  result_num2: int = add result_num1 digit_num1;
+  r0_num1: int = id r0_num0;
+  result_num3: int = id result_num2;
+  processed_num1: bool = id processed_num0;
+  jmp .check_result;
+.check_result:
+  print result_num3;
+  processed_num2: bool = call @is_single_digit result_num3;
+  br processed_num2 .check_done .process_result;
+.process_result:
+  r0_num2: int = call @peel_last_digit result_num3;
+  result_num4: int = div result_num3 ten_num0;
+  result_num5: int = add result_num4 r0_num2;
+  r0_num1: int = id r0_num2;
+  result_num3: int = id result_num5;
+  processed_num1: bool = id processed_num2;
+  jmp .check_result;
+.check_done:
+  done_num1: bool = eq input_num1 zero_num0;
+  done_num0: bool = id done_num1;
+  r0_num0: int = id r0_num1;
+  result_num1: int = id result_num3;
+  processed_num0: bool = id processed_num2;
+  input_num0: int = id input_num1;
+  digit_num0: int = id digit_num1;
+  br done_num1 .done .begin;
+.done:
+  print result_num3;
+  ret;
+}
+@is_single_digit(input: int): bool {
+.b1:
+  ten_num0: int = const 10;
+  zero_num0: int = const 0;
+  divided_num0: int = div input ten_num0;
+  mul_by_ten_num0: int = mul divided_num0 ten_num0;
+  result_num0: bool = eq mul_by_ten_num0 zero_num0;
+  ret result_num0;
+}
+@peel_last_digit(input: int): int {
+.b1:
+  ten_num0: int = const 10;
+  div_by_ten_num0: int = div input ten_num0;
+  mul_by_ten_num0: int = mul div_by_ten_num0 ten_num0;
+  last_digit_num0: int = sub input mul_by_ten_num0;
+  ret last_digit_num0;
+}

@@ -1,0 +1,41 @@
+@main(input: int) {
+.b1:
+  n_num0: int = id input;
+  v0_num0: int = const 0;
+  v1_num0: int = const 1;
+  v2_num0: int = const 2;
+  sum_num0: int = id v1_num0;
+  i_num0: int = id v2_num0;
+  result_num0: int = id v1_num0;
+  jmp .for.cond.1;
+.for.cond.1:
+  sum_num1: int = phi sum_num0 sum_num2 .b1 .for.incre;
+  i_num1: int = phi i_num0 i_num2 .b1 .for.incre;
+  ii_num1: int = mul i_num1 i_num1;
+  comp_num1: bool = gt ii_num1 n_num0;
+  br comp_num1 .for.end .for.body;
+.for.body:
+  qut_num1: int = div n_num0 i_num1;
+  mpt_num1: int = mul qut_num1 i_num1;
+  dif_num1: int = sub n_num0 mpt_num1;
+  comp1_num1: bool = eq dif_num1 v0_num0;
+  br comp1_num1 .if.body .for.incre;
+.if.body:
+  sum_num3: int = add sum_num1 i_num1;
+  sum_num4: int = add sum_num3 qut_num1;
+  jmp .for.incre;
+.for.incre:
+  sum_num2: int = phi sum_num1 sum_num4 .for.body .if.body;
+  i_num2: int = add i_num1 v1_num0;
+  jmp .for.cond.1;
+.for.end:
+  comp2_num0: bool = eq sum_num1 n_num0;
+  br comp2_num0 .if.success .if.failure.end;
+.if.success:
+  result_num1: int = id v0_num0;
+  jmp .if.failure.end;
+.if.failure.end:
+  result_num2: int = phi result_num0 result_num1 .for.end .if.success;
+  print result_num2;
+  ret;
+}
