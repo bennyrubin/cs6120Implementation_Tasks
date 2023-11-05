@@ -14,7 +14,7 @@ def collapse_calls(ls: list) -> list[dict]:
     active_calls = 0
     for instr in ls:
         if active_calls == 0:
-            st.append(instr)
+            st.append(copy.deepcopy(instr))
         if instr["op"] == "call":
             active_calls += 1
         elif instr["op"] == "ret":
@@ -29,6 +29,8 @@ def extract_trace(ls: list[dict], num_jmps) -> list[dict]:
         if e['op'] == 'jmp' or e['op'] == 'br':
             num_jmps -= 1
             last_branch_jmp = idx
+        if e['op'] == "call" or e['op'] == 'print':
+            return ls[:idx + 1]
         if num_jmps == 0:
             # include the final jump or branch
             return ls[:idx + 1]
@@ -53,12 +55,12 @@ def replace_all_branches_guards(ls: list[dict]):
 def add_speculate_commit(ls: list[dict]):
     ls.insert(0, {"op": "speculate"})
     ls.insert(len(ls) - 1, {"op": "commit"})
-    assert ls[-1]["op"] == "jmp" or ls[-1]["op"] == "br"
+    assert (ls[-1]["op"] == "jmp" or ls[-1]["op"] == "br"
+            or ls[-1]["op"] == "call" or ls[-1]["op"] == "print")
     return ls
 
 
 def stitch_trace_program(trace: list[dict], basic_blocks):
-    trace_block = collapse_calls(trace)
     remove_jumps(trace_block)
     replace_all_branches_guards(trace_block)
     add_speculate_commit(trace_block)
@@ -73,13 +75,14 @@ def print_program(prog):
 
 if __name__ == "__main__":
     # in order to work properly must be run directly from Lesson6 dir
-    NUM_JUMPS = 5
+    NUM_JUMPS = 100
     program = json.load(sys.stdin)
     trace_file = sys.argv[1]
     with open(trace_file) as file:
         instrs = file.readlines()
     trace_instr = [json.loads(instr) for instr in instrs]
-    trace = extract_trace(trace_instr, NUM_JUMPS)
+    trace = collapse_calls(trace_instr)
+    trace_block = extract_trace(trace, NUM_JUMPS)
 
     # print(program)
 
@@ -90,7 +93,7 @@ if __name__ == "__main__":
         func['instrs'].insert(0, {"label": "new_label_main"})
         basic_blocks = block_map(form_blocks(func['instrs']))
         add_terminators(basic_blocks)
-        stitch_trace_program(trace, basic_blocks)
+        stitch_trace_program(trace_block, basic_blocks)
         func['instrs'] = reassemble(basic_blocks)
         # print(basic_blocks.keys())
 
