@@ -29,8 +29,9 @@ def extract_trace(ls: list[dict], num_jmps) -> list[dict]:
         if e['op'] == 'jmp' or e['op'] == 'br':
             num_jmps -= 1
             last_branch_jmp = idx
-        if e['op'] == "call" or e['op'] == 'print':
-            return ls[:idx + 1]
+        if e['op'] == "call" or e['op'] == "print":
+            assert last_branch_jmp > 0
+            return ls[:last_branch_jmp + 1]
         if num_jmps == 0:
             # include the final jump or branch
             return ls[:idx + 1]
@@ -44,25 +45,39 @@ def remove_jumps(ls: list[dict]):
             del ls[idx]
 
 
-def replace_all_branches_guards(ls: list[dict]):
+def replace_all_branches_guards(ls: list[dict], block_map) -> list:
     # example guard instr: {"args":["v3"],"labels":["then.0"],"op":"guard"}
+    res = []
     for idx, instr in enumerate(ls):
         if instr["op"] == "br" and (idx != len(ls) - 1):
-            ls[idx] = {"args": instr['args'], "labels": [
-                "new_label_main"], "op": "guard"}
+            if ls[idx + 1] == block_map[instr['labels'][0]][0]:
+                # res.append({'op': 'print', 'args': instr['args']})
+                res.append({"args": instr['args'], "labels": [
+                    "new_label_main"], "op": "guard"})
+            else:
+                res.append({"args": instr['args'], "op": "not",
+                            "type": "bool",
+                           "dest": f"not_instr_replace_{instr['args'][0]}"})
+                # res.append({'op': 'print', 'args': [
+                #            f"not_instr_replace_{instr['args'][0]}"]})
+                res.append(
+                    {"args": [f"not_instr_replace_{instr['args'][0]}"], "op": "guard", "labels": [
+                        "new_label_main"]})
+        else:
+            res.append(instr)
+    return res
 
 
 def add_speculate_commit(ls: list[dict]):
     ls.insert(0, {"op": "speculate"})
     ls.insert(len(ls) - 1, {"op": "commit"})
-    assert (ls[-1]["op"] == "jmp" or ls[-1]["op"] == "br"
-            or ls[-1]["op"] == "call" or ls[-1]["op"] == "print")
+    assert ls[-1]["op"] == "jmp" or ls[-1]["op"] == "br"
     return ls
 
 
-def stitch_trace_program(trace: list[dict], basic_blocks):
+def stitch_trace_program(trace_block: list[dict], basic_blocks):
     remove_jumps(trace_block)
-    replace_all_branches_guards(trace_block)
+    trace_block = replace_all_branches_guards(trace_block, basic_blocks)
     add_speculate_commit(trace_block)
     basic_blocks.update({'start_trace': trace_block})
     basic_blocks.move_to_end('start_trace', last=False)
@@ -75,7 +90,7 @@ def print_program(prog):
 
 if __name__ == "__main__":
     # in order to work properly must be run directly from Lesson6 dir
-    NUM_JUMPS = 100
+    NUM_JUMPS = 50
     program = json.load(sys.stdin)
     trace_file = sys.argv[1]
     with open(trace_file) as file:
